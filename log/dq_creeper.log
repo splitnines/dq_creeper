@@ -1,0 +1,51 @@
+
+executing Practiscore queries...complete: 1.6362535953521729 seconds
+executing AWS data pulls....complete: 34.42451810836792 seconds
+compiling data....complete: 3.371246337890625 seconds
+          Date  ... First Name
+0   2023-12-23  ...        RAN
+1   2023-12-16  ...      JACOB
+2   2023-12-16  ...      ZIHAN
+3   2023-12-10  ...     JUSTIN
+4   2023-12-09  ...      PETER
+5   2023-12-09  ...       MINH
+6   2023-12-02  ...      FRANK
+7   2023-12-02  ...    JEFFREY
+8   2023-12-02  ...       OMAR
+9   2023-12-02  ...        TAT
+10  2023-12-02  ...    DOMINIC
+11  2023-12-02  ...       ILYA
+12  2023-12-02  ...      JAMES
+13  2023-11-26  ...       PAUL
+14  2023-11-25  ...     JEREMY
+15  2023-11-25  ...     ISAIAH
+16  2023-11-25  ...      DAVID
+17  2023-11-25  ...       KURT
+18  2023-11-25  ...       GAYL
+19  2023-11-19  ...    RICHARD
+20  2023-11-19  ...       KYLE
+21  2023-11-19  ...       ALEX
+22  2023-11-18  ...      ERNIE
+23  2023-11-12  ...      PETER
+24  2023-11-11  ...    DOUGLAS
+
+[25 rows x 4 columns]
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 2075 entries, 0 to 2074
+Data columns (total 5 columns):
+ #   Column      Non-Null Count  Dtype 
+---  ------      --------------  ----- 
+ 0   Date        2075 non-null   object
+ 1   Match       2075 non-null   object
+ 2   Last Name   2075 non-null   object
+ 3   First Name  2075 non-null   object
+ 4   USPSA#      2075 non-null   object
+dtypes: object(5)
+memory usage: 81.2+ KB
+None
+
+report saved to: /home/rickey/dq_creeper/dq_creeper_output.csv
+
+copying dq_creeper_output.csv to Google Drive.....complete.
+
+runtime: 42.30182147026062 seconds
