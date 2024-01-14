@@ -7,6 +7,7 @@ import re
 import time
 import os
 import os.path
+import datetime as dt
 from collections import deque
 import traceback
 import pandas as pd
@@ -195,7 +196,7 @@ def google_drive_copy(filename, scopes):
 
     except HttpError as error:
         # TODO(developer) - Handle errors from drive API.
-        print(f"An error occurred: {error}")
+        print(f"[{dt.datetime.now()}]: An error occurred: {error}")
 
 
 def main():
@@ -228,7 +229,7 @@ def main():
     ]
 
     ps_query_time = time.time()
-    print('\nexecuting Practiscore queries...', end='')
+    print(f'\n[{dt.datetime.now()}]: executing Practiscore queries...', end='')
 
     try:
         results_data = event_loop(http_sess2, CLUB_NAME_SEARCH_LIST)
@@ -241,12 +242,12 @@ def main():
         data_dict[club[0]] = (club[1], data)
 
     aws_data_pull_time = time.time()
-    print('executing AWS data pulls....', end='')
+    print(f'[{dt.datetime.now()}]: executing AWS data pulls....', end='')
     results_list = get_aws_files(data_dict)
     print(f'complete: {time.time() - aws_data_pull_time:.2f} seconds')
 
     data_comp_time = time.time()
-    print('compiling data....', end='')
+    print(f'[{dt.datetime.now()}]: compiling data....', end='')
     df = pd.DataFrame(
         columns=['Date', 'Match', 'Last Name', 'First Name', 'USPSA#']
     )
@@ -301,9 +302,12 @@ def main():
     # print(df[cols_to_print].head(25))
     # print(df.info(verbose=True))
 
-    print(f'\nreport saved to: {csv_fn}')
+    print(f'[{dt.datetime.now()}]: report saved to: {csv_fn}')
 
-    print(f'\ncopying {OUTPUT_FILENAME} to Google Drive.....', end='')
+    print(
+        f'[{dt.datetime.now()}]: copying '
+        f'{OUTPUT_FILENAME} to Google Drive.....', end=''
+    )
     google_drive_copy(OUTPUT_FILENAME, SCOPES)
     print('complete.')
 
@@ -311,4 +315,4 @@ def main():
 if __name__ == "__main__":
     start = time.time()
     main()
-    print(f'\nruntime: {time.time() - start:.2f} seconds')
+    print(f'[{dt.datetime.now()}]: runtime: {time.time() - start:.2f} seconds')
