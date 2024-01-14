@@ -295,11 +295,11 @@ def main():
 
     print(f'complete: {time.time() - data_comp_time} seconds')
 
-    cols_to_print = [
-        'Date', 'Match', 'Last Name', 'First Name'
-    ]
-    print(df[cols_to_print].head(25))
-    print(df.info(verbose=True))
+    # cols_to_print = [
+    #     'Date', 'Match', 'Last Name', 'First Name'
+    # ]
+    # print(df[cols_to_print].head(25))
+    # print(df.info(verbose=True))
 
     print(f'\nreport saved to: {csv_fn}')
 
