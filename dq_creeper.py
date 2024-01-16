@@ -365,7 +365,12 @@ def main():
                     df.loc[len(df)] = dq_row
 
     df.drop_duplicates(inplace=True)
-    df.sort_values(by='Date', inplace=True, ascending=False, ignore_index=True)
+    df.sort_values(
+        by=['Date', 'Match'],
+        inplace=True,
+        ascending=False,
+        ignore_index=True
+    )
 
     csv_fn = os.path.join(
         '/home/rickey/dq_creeper', OUTPUT_FILENAME
