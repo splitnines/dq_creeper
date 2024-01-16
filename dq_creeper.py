@@ -409,12 +409,6 @@ def main():
     write_to_db(df, conn)
     print(f'complete: {time.time() - db_write_time:.2f} seconds', flush=True)
 
-    # cols_to_print = [
-    #     'Date', 'Match', 'Last Name', 'First Name'
-    # ]
-    # print(df[cols_to_print].head(25))
-    # print(df.info(verbose=True))
-
     print(f'[{dt.datetime.now()}]: report saved to: {csv_fn}', flush=True)
 
     google_drive_write_time = time.time()
