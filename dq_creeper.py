@@ -6,13 +6,13 @@ import json
 import re
 import time
 import os
-import os.path
 import datetime as dt
 from collections import deque
 import traceback
 import pandas as pd
 from requests.structures import CaseInsensitiveDict
 from aiohttp import ClientSession
+from sqlalchemy.types import VARCHAR, DATE, TEXT, INT
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -199,6 +199,74 @@ def google_drive_copy(filename, scopes):
         print(f"[{dt.datetime.now()}]: An error occurred: {error}")
 
 
+# retreive postgres credentials
+def get_pg_credentials(dir, file):
+
+    CREDSDIR = dir
+    CREDSFILE = file
+    pg_creds = {}
+
+    try:
+        os.path.exists(os.path.join(CREDSDIR, CREDSFILE))
+        with open(os.path.join(CREDSDIR, CREDSFILE), 'r') as f:
+            for line in f:
+                k, v = line.split('=')
+                pg_creds[k.strip()] = v.strip()
+    except Exception as e:
+        print(f'PostgreSQL authorization: {e}')
+
+    return pg_creds['USER'], pg_creds['PASS']
+
+
+# pull database table
+def get_db_table(conn):
+
+    db_df = pd.read_sql_table('dqcreeper', conn, schema='dqcreeper')
+
+    db_df.drop(['id'], axis=1, inplace=True)
+
+    db_df.sort_values(
+        by=['date', 'match'],
+        ascending=False,
+        ignore_index=True,
+        inplace=True
+    )
+
+    return db_df
+
+
+# compare dataframes and keep only new entries
+def get_new_dq_entries(df1, df2):
+
+    df1 = df1.merge(
+        df2, indicator=True, how='outer'
+    ).query('''_merge == "left_only"''').drop('_merge', axis=1)
+
+    return df1
+
+
+# write new entries to database
+def write_to_db(df, conn):
+    if len(df.index) > 0:
+        sql_dtypes = {
+            'date': DATE,
+            'match': TEXT,
+            'lastname': VARCHAR(length=50),
+            'firstname': VARCHAR(length=50),
+            'uspsanum': VARCHAR(length=15),
+            'id': INT,
+        }
+
+        df.to_sql(
+            'dqcreeper',
+            conn,
+            schema='dqcreeper',
+            if_exists='append',
+            dtype=sql_dtypes,
+            index=False,
+        )
+
+
 def main():
 
     OUTPUT_FILENAME = 'dq_creeper_output.csv'
@@ -229,25 +297,35 @@ def main():
     ]
 
     ps_query_time = time.time()
-    print(f'\n[{dt.datetime.now()}]: executing Practiscore queries...', end='')
+    print(
+        f'\n[{dt.datetime.now()}]: executing Practiscore queries...',
+        end='',
+        flush=True
+    )
 
     try:
         results_data = event_loop(http_sess2, CLUB_NAME_SEARCH_LIST)
     except Exception:
         raise Exception(traceback.format_exc())
-    print(f'complete: {time.time() - ps_query_time:.2f} seconds')
+    print(f'complete: {time.time() - ps_query_time:.2f} seconds', flush=True)
 
     data_dict = {}
     for club, data in zip(CLUB_NAME_SEARCH_LIST, results_data):
         data_dict[club[0]] = (club[1], data)
 
     aws_data_pull_time = time.time()
-    print(f'[{dt.datetime.now()}]: executing AWS data pulls....', end='')
+    print(
+        f'[{dt.datetime.now()}]: executing AWS data pulls....',
+        end='',
+        flush=True
+    )
     results_list = get_aws_files(data_dict)
-    print(f'complete: {time.time() - aws_data_pull_time:.2f} seconds')
+    print(
+        f'complete: {time.time() - aws_data_pull_time:.2f} seconds', flush=True
+    )
 
     data_comp_time = time.time()
-    print(f'[{dt.datetime.now()}]: compiling data....', end='')
+    print(f'[{dt.datetime.now()}]: compiling data....', end='', flush=True)
     df = pd.DataFrame(
         columns=['Date', 'Match', 'Last Name', 'First Name', 'USPSA#']
     )
@@ -294,7 +372,42 @@ def main():
     )
     df.to_csv(csv_fn, index=False)
 
-    print(f'complete: {time.time() - data_comp_time} seconds')
+    print(f'complete: {time.time() - data_comp_time:.2f} seconds')
+
+    db_read_time = time.time()
+    print(f'[{dt.datetime.now()}]: reading db table....', end='')
+    user, passwd = get_pg_credentials('/home/rickey/.pgauth/', 'pg_creds')
+    conn = f'postgresql://{user}:{passwd}@10.0.0.203/postgres'
+    db_df = get_db_table(conn)
+
+    print(f'complete: {time.time() - db_read_time:.2f} seconds')
+
+    col_rename = {
+        'Date': 'date',
+        'Match': 'match',
+        'Last Name': 'lastname',
+        'First Name': 'firstname',
+        'USPSA#': 'uspsanum',
+    }
+    df.rename(columns=col_rename, inplace=True)
+    df = df.astype({'date': 'datetime64[ns]'})
+    df.sort_values(
+        by=['date', 'match'],
+        ascending=False,
+        ignore_index=True,
+        inplace=True
+    )
+
+    df = get_new_dq_entries(df, db_df)
+
+    db_write_time = time.time()
+    print(
+        f'[{dt.datetime.now()}]: writing to db table....',
+        end='',
+        flush=True
+    )
+    write_to_db(df, conn)
+    print(f'complete: {time.time() - db_write_time:.2f} seconds', flush=True)
 
     # cols_to_print = [
     #     'Date', 'Match', 'Last Name', 'First Name'
@@ -302,14 +415,15 @@ def main():
     # print(df[cols_to_print].head(25))
     # print(df.info(verbose=True))
 
-    print(f'[{dt.datetime.now()}]: report saved to: {csv_fn}')
+    print(f'[{dt.datetime.now()}]: report saved to: {csv_fn}', flush=True)
 
+    google_drive_write_time = time.time()
     print(
         f'[{dt.datetime.now()}]: copying '
-        f'{OUTPUT_FILENAME} to Google Drive.....', end=''
+        f'{OUTPUT_FILENAME} to Google Drive.....', end='', flush=True
     )
     google_drive_copy(OUTPUT_FILENAME, SCOPES)
-    print('complete.')
+    print(f'complete: {time.time() - google_drive_write_time:.2f} seconds')
 
 
 if __name__ == "__main__":

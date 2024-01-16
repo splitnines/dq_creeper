@@ -47,6 +47,8 @@ user-agent = "*"
 weblib = "*"
 yarl = "*"
 flake8 = "*"
+sqlalchemy = "*"
+psycopg2 = "*"
 
 [dev-packages]
 
