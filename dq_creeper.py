@@ -152,7 +152,7 @@ def get_aws_files(data_dict):
     return results_list
 
 
-def google_drive_copy(filename, scopes):
+def google_drive_copy(filename, scopes) -> None:
 
     PATH_TO_CREDS = '/home/rickey/.google_creds/'
     TOKEN = os.path.join(PATH_TO_CREDS, 'token.json')
@@ -246,7 +246,7 @@ def get_new_dq_entries(df1, df2):
 
 
 # write new entries to database
-def write_to_db(df, conn):
+def write_to_db(df, conn) -> None:
     if len(df.index) > 0:
         sql_dtypes = {
             'date': DATE,
@@ -267,7 +267,9 @@ def write_to_db(df, conn):
         )
 
 
-def main():
+def main() -> None:
+
+    start = time.time()
 
     OUTPUT_FILENAME = 'dq_creeper_output.csv'
     SCOPES = ["https://www.googleapis.com/auth/drive"]
@@ -423,9 +425,9 @@ def main():
     )
     google_drive_copy(OUTPUT_FILENAME, SCOPES)
     print(f'complete: {time.time() - google_drive_write_time:.2f} seconds')
+    print(f'[{dt.datetime.now()}]: runtime: {time.time() - start:.2f} seconds')
 
 
 if __name__ == "__main__":
-    start = time.time()
     main()
-    print(f'[{dt.datetime.now()}]: runtime: {time.time() - start:.2f} seconds')
+
