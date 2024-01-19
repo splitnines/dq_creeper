@@ -49,6 +49,7 @@ yarl = "*"
 flake8 = "*"
 sqlalchemy = "*"
 psycopg2 = "*"
+cryptography = "*"
 
 [dev-packages]
 

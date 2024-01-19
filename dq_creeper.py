@@ -13,6 +13,7 @@ import pandas as pd
 from requests.structures import CaseInsensitiveDict
 from aiohttp import ClientSession
 from sqlalchemy.types import VARCHAR, DATE, TEXT, INT
+from cryptography.fernet import Fernet
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -154,9 +155,8 @@ def get_aws_files(data_dict):
 
 def google_drive_copy(filename, scopes) -> None:
 
-    PATH_TO_CREDS = '/home/rickey/.google_creds/'
-    TOKEN = os.path.join(PATH_TO_CREDS, 'token.json')
-    CREDENTIALS = os.path.join(PATH_TO_CREDS, 'credentials.json')
+    TOKEN = os.environ['GOOGLETOKEN']
+    CREDENTIALS = os.environ['GOOGLECREDS']
 
     creds = None
 
@@ -200,20 +200,24 @@ def google_drive_copy(filename, scopes) -> None:
 
 
 # retreive postgres credentials
-def get_pg_credentials(dir, file):
+def get_pg_credentials():
 
-    CREDSDIR = dir
-    CREDSFILE = file
-    pg_creds = {}
+    TOKEN_FILE = os.environ['TOKEN_FILE']
+    KEY_FILE = os.environ['KEY_FILE']
 
-    try:
-        os.path.exists(os.path.join(CREDSDIR, CREDSFILE))
-        with open(os.path.join(CREDSDIR, CREDSFILE), 'r') as f:
-            for line in f:
-                k, v = line.split('=')
-                pg_creds[k.strip()] = v.strip()
-    except Exception as e:
-        print(f'PostgreSQL authorization: {e}')
+    with open(KEY_FILE, 'r') as f:
+        key = re.search(r'^key=(.+)', f.read())[1]
+
+    with open(TOKEN_FILE, 'r') as f:
+        token = re.search(r'^token=(.+)', f.read())[1]
+
+    cipher = Fernet(key)
+    decoded_password = cipher.decrypt(token.encode('utf-8')).decode('utf-8')
+
+    pg_creds = {
+        'USER': os.environ['PGUSER'],
+        'PASS': decoded_password
+    }
 
     return pg_creds['USER'], pg_creds['PASS']
 
@@ -383,7 +387,7 @@ def main() -> None:
 
     db_read_time = time.time()
     print(f'[{dt.datetime.now()}]: reading db table....', end='')
-    user, passwd = get_pg_credentials('/home/rickey/.pgauth/', 'pg_creds')
+    user, passwd = get_pg_credentials()
     conn = f'postgresql://{user}:{passwd}@10.0.0.203/postgres'
     db_df = get_db_table(conn)
 

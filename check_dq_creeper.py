@@ -20,9 +20,8 @@ def convert_tz(dt_object):
 
 def main():
 
-    PATH_TO_CREDS = '/home/rickey/.google_creds/'
-    TOKEN = os.path.join(PATH_TO_CREDS, 'token.json')
-    CREDENTIALS = os.path.join(PATH_TO_CREDS, 'credentials.json')
+    TOKEN = os.environ['GOOGLETOKEN']
+    CREDENTIALS = os.environ['GOOGLECREDS']
 
     creds = None
 
