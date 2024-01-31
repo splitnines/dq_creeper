@@ -286,6 +286,7 @@ def main() -> None:
 
     # start = time.time()
 
+    HOMEDIR = os.path.expanduser('~')
     OUTPUT_FILENAME = 'dq_creeper_output.csv'
     SCOPES = ["https://www.googleapis.com/auth/drive"]
 
@@ -389,8 +390,9 @@ def main() -> None:
         ignore_index=True
     )
 
+    # HOMEDIR = os.path.expanduser('~')
     csv_fn = os.path.join(
-        '/home/rickey/dq_creeper', OUTPUT_FILENAME
+        HOMEDIR, 'dq_creeper', OUTPUT_FILENAME
     )
     df.to_csv(csv_fn, index=False)
 
