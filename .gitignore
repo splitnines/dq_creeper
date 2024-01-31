@@ -1,3 +1,5 @@
+venv/
 log/
 dq_creeper_output.csv
 .env
+.vscode/
