@@ -50,6 +50,8 @@ flake8 = "*"
 sqlalchemy = "*"
 psycopg2 = "*"
 cryptography = "*"
+virtualenv = "*"
+pyarrow = "*"
 
 [dev-packages]
 

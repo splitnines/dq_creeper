@@ -153,6 +153,16 @@ def get_aws_files(data_dict):
     return results_list
 
 
+def get_time(func):
+    def wrapper(*args, **kwargs):
+        start = time.time()
+        func(*args, **kwargs)
+        end = time.time()
+        print(f'complete: {end - start:.2f} seconds', flush=True)
+    return wrapper
+
+
+@get_time
 def google_drive_copy(filename, scopes) -> None:
 
     TOKEN = os.environ['GOOGLETOKEN']
@@ -271,9 +281,10 @@ def write_to_db(df, conn) -> None:
         )
 
 
+@get_time
 def main() -> None:
 
-    start = time.time()
+    # start = time.time()
 
     OUTPUT_FILENAME = 'dq_creeper_output.csv'
     SCOPES = ["https://www.googleapis.com/auth/drive"]
@@ -422,16 +433,14 @@ def main() -> None:
 
     print(f'[{dt.datetime.now()}]: report saved to: {csv_fn}', flush=True)
 
-    google_drive_write_time = time.time()
     print(
         f'[{dt.datetime.now()}]: copying '
         f'{OUTPUT_FILENAME} to Google Drive.....', end='', flush=True
     )
     google_drive_copy(OUTPUT_FILENAME, SCOPES)
-    print(f'complete: {time.time() - google_drive_write_time:.2f} seconds')
-    print(f'[{dt.datetime.now()}]: runtime: {time.time() - start:.2f} seconds')
+
+    print(f'[{dt.datetime.now()}]: ', end='', flush=True)
 
 
 if __name__ == "__main__":
     main()
-
