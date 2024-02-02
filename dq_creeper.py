@@ -316,7 +316,7 @@ def main() -> None:
 
     ps_query_time = time.time()
     print(
-        f'\n[{dt.datetime.now()}]: executing Practiscore queries...',
+        f'[{dt.datetime.now()}]: executing Practiscore queries...',
         end='',
         flush=True
     )
