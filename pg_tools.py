@@ -32,7 +32,7 @@ def get_pg_credentials():
 def timestamp(func):
     def wrapper(*args, **kwargs):
         print(
-            f'[{datetime.now()}]: executing query...',
+            f'{datetime.now()}: executing query...',
             end='',
             flush=True
         )
