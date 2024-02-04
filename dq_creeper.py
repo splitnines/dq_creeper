@@ -199,7 +199,7 @@ def google_drive_copy(filename, scopes) -> None:
 
     except HttpError as error:
         # TODO(developer) - Handle errors from drive API.
-        print(f"[{dt.datetime.now()}]: An error occurred: {error}")
+        print(f"{dt.datetime.now()}: An error occurred: {error}")
 
 
 # retreive postgres credentials
@@ -309,7 +309,7 @@ def main() -> None:
 
     ps_query_time = time.time()
     print(
-        f'[{dt.datetime.now()}]: executing Practiscore queries...',
+        f'{dt.datetime.now()}: executing Practiscore queries...',
         end='',
         flush=True
     )
@@ -326,7 +326,7 @@ def main() -> None:
 
     aws_data_pull_time = time.time()
     print(
-        f'[{dt.datetime.now()}]: executing AWS data pulls....',
+        f'{dt.datetime.now()}: executing AWS data pulls....',
         end='',
         flush=True
     )
@@ -336,7 +336,7 @@ def main() -> None:
     )
 
     data_comp_time = time.time()
-    print(f'[{dt.datetime.now()}]: compiling data....', end='', flush=True)
+    print(f'{dt.datetime.now()}: compiling data....', end='', flush=True)
     df = pd.DataFrame(
         columns=['Date', 'Match', 'Last Name', 'First Name', 'USPSA#']
     )
@@ -392,7 +392,7 @@ def main() -> None:
     print(f'complete: {time.time() - data_comp_time:.2f} seconds')
 
     db_read_time = time.time()
-    print(f'[{dt.datetime.now()}]: reading db table....', end='')
+    print(f'{dt.datetime.now()}: reading db table....', end='')
     user, passwd = get_pg_credentials()
     pg_server = os.environ['PGSERVER']
     conn = f'postgresql://{user}:{passwd}@{pg_server}/postgres'
@@ -420,22 +420,22 @@ def main() -> None:
 
     db_write_time = time.time()
     print(
-        f'[{dt.datetime.now()}]: writing to db table....',
+        f'{dt.datetime.now()}: writing to db table....',
         end='',
         flush=True
     )
     write_to_db(df, conn)
     print(f'complete: {time.time() - db_write_time:.2f} seconds', flush=True)
 
-    print(f'[{dt.datetime.now()}]: report saved to: {csv_fn}', flush=True)
+    print(f'{dt.datetime.now()}: report saved to: {csv_fn}', flush=True)
 
     print(
-        f'[{dt.datetime.now()}]: copying '
+        f'{dt.datetime.now()}: copying '
         f'{OUTPUT_FILENAME} to Google Drive.....', end='', flush=True
     )
     google_drive_copy(OUTPUT_FILENAME, SCOPES)
 
-    print(f'[{dt.datetime.now()}]: ', end='', flush=True)
+    print(f'{dt.datetime.now()}: ', end='', flush=True)
 
 
 if __name__ == "__main__":
