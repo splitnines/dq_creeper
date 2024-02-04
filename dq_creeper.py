@@ -401,7 +401,8 @@ def main() -> None:
     db_read_time = time.time()
     print(f'[{dt.datetime.now()}]: reading db table....', end='')
     user, passwd = get_pg_credentials()
-    conn = f'postgresql://{user}:{passwd}@10.0.0.203/postgres'
+    pg_server = os.environ['PGSERVER']
+    conn = f'postgresql://{user}:{passwd}@{pg_server}/postgres'
     db_df = get_db_table(conn)
 
     print(f'complete: {time.time() - db_read_time:.2f} seconds')
