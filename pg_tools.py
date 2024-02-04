@@ -1,6 +1,7 @@
 import os
 import re
 from datetime import datetime
+import time
 
 from cryptography.fernet import Fernet
 
@@ -38,4 +39,14 @@ def timestamp(func):
         func(*args, **kwargs)
         print('complete.', flush=True)
         return func(*args, **kwargs)
+    return wrapper
+
+
+# decorator function for recording and displaying function run time
+def get_time(func):
+    def wrapper(*args, **kwargs):
+        start = time.time()
+        func(*args, **kwargs)
+        end = time.time()
+        print(f'complete: {end - start:.2f} seconds', flush=True)
     return wrapper

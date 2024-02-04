@@ -22,6 +22,8 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload
 
+from pg_tools import get_time
+
 
 async def http_get(url, session):
     headers = {
@@ -151,15 +153,6 @@ def get_aws_files(data_dict):
         )
         results_list.append(match_def_json)
     return results_list
-
-
-def get_time(func):
-    def wrapper(*args, **kwargs):
-        start = time.time()
-        func(*args, **kwargs)
-        end = time.time()
-        print(f'complete: {end - start:.2f} seconds', flush=True)
-    return wrapper
 
 
 @get_time
