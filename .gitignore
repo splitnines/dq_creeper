@@ -2,3 +2,4 @@ venv/
 log/
 dq_creeper_output.csv
 .vscode/
+aws_pgdb_test.py
